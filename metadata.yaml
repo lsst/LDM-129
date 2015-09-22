@@ -1,0 +1,10 @@
+doc_id: 'LDM-129'
+doc_title: 'Data Management Infrastructure Design'
+copyright: '2015, AURA/LSST'
+authors:
+    - 'Mike Freemon'
+    - 'Jeff Kantor'
+# Current document version
+last_revised: 'October 11, 2013'
+version: '3.0'
+# dev_version_suffix: None  # e.g. 'alpha'/'beta'/'rc' if necessary
