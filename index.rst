@@ -1,44 +1,8 @@
-Large Synoptic Survey Telescope (LSST)
+:tocdepth: 1
 
-Data Management Infrastructure Design
+.. sectnum::
 
-Mike Freemon and Jeff Kantor
-
-LDM-129
-
-Latest Revision: October 11, 2013
-
-This LSST document has been approved as a Content-Controlled Document by
-the LSST DM Technical Control Team. If this document is changed or
-superseded, the new document will retain the Handle designation shown
-above. The control is on the most recent digital document with this
-Handle in the LSST digital archive and not printed versions. Additional
-information may be found in the LSST DM TCT minutes.
-
-Change Record
-
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-| **Version**   | **Date**     | **Description**                                                                | **Owner name**                 |
-+===============+==============+================================================================================+================================+
-| 1.0           | 7/13/2011    | Initial version as an assembled document; previous material was distributed.   | Mike Freemon and Jeff Kantor   |
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-| 2.0           | 10/9/13      | Updated for Final Design Review                                                | Mike Freemon and Jeff Kantor   |
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-| 3.0           | 10/11/2013   | TCT approved                                                                   | R Allsman                      |
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-+---------------+--------------+--------------------------------------------------------------------------------+--------------------------------+
-
-The LSST Data Management Infrastructure Design
+.. _overview:
 
 Overview
 ========
@@ -55,19 +19,27 @@ highest level of discussion. It is the “umbrella” document over many
 other referenced documents that elaborate on the design in greater
 detail.
 
-|image0|
 
-Figure 1. The 3-layered architecture of the Data Management System
-enables scalability, reliability, and evolutionary capability.
+.. _fig-dms-arch:
+
+.. figure:: _static/dms_arch.png
+   :alt: The 3-layered architecture of the Data Management System
+         enables scalability, reliability, and evolutionary capability.
+
+   The 3-layered architecture of the Data Management System
+   enables scalability, reliability, and evolutionary capability.
 
 The DM System is distributed across four sites in the United States and
 Chile. Each site hosts one or more physical facilities, in which reside
 DM Centers. Each Center performs a specific role in the operational
 system.
 
-|image1|
+.. _fig-sites:
 
-Figure 2: Data Management Sites, Facilities, and Centers.
+.. figure:: _static/sites.png
+   :alt: Data Management Sites, Facilities, and Centers.
+
+   Data Management Sites, Facilities, and Centers.
 
 The Base Center is in the Base Facility on the AURA compound in La
 Serena, Chile. The primary role of the Base Center is:
@@ -110,6 +82,8 @@ that are needed to support the generation and access to the LSST data
 products. The remainder of this document describes those computing
 resources and technologies in more detail.
 
+.. _components:
+
 Infrastructure Components
 =========================
 
@@ -122,30 +96,106 @@ both. It is the shared infrastructure that reduces overall costs and
 motivates the use of co-location for the Data Access Centers at the
 Archive and Base Sites.
 
-|image2|
+.. _tab-components:
 
-Figure 3. The major components of the LSST DM Infrastructure.
+.. table:: The major components of the LSST DM Infrastructure.
 
-|image3|
+   +----------------------------------+-------------------------------------------+----------------------------+
+   | Center                           | Shared                                    | DAC                        |
+   +==================================+===========================================+============================+
+   | * Compute for AP, DRP, CPP, MOPS | * Disk storage for:                       | * L1 Database (*)          |
+   | * Scratch disk for AP, DRP, CPP  |                                           | * L2 Database (*)          |
+   | * AP Database                    |   - Postage stamps                        | * L3 Database (*)          |
+   | * DRP Database                   |   - Coadds                                | * L3 Community Scratch (*) |
+   | * DMCS Servers                   |   - Templates                             | * L3 Community Images      |
+   | * Data Replication Servers       |   - Master Calibration                    | * L3 Community Compute (*) |
+   | * VOEvent Brokers                |   - Image Cache                           | * On-Demand Service        |
+   |                                  |                                           | * Cutout Service           |
+   |                                  | * Calibration Database (*)                | * Color JPG service        |
+   |                                  | * E&F Database (*)                        | * DMCS Servers (*)         |
+   |                                  | * Local Area Networking (*)               |                            |
+   |                                  | * Tape Library MSS Disk Cache (*)         |                            |
+   |                                  | * Connectivity to the public internet (*) |                            |
+   |                                  | * Logging Servers (*)                     |                            |
+   |                                  | * MQ Servers (*)                          |                            |
+   +----------------------------------+-------------------------------------------+----------------------------+
 
-Figure 4: Infrastructure Components at the Archive and Base Sites.
+.. _fig-base-infrastructure:
+
+.. figure:: _static/archive_base_components.png
+   :alt: Infrastructure Components at the Archive and Base Sites.
+
+   Infrastructure Components at the Archive and Base Sites.
 
 Both the Base Center and the Archive Center have essentially the same
-architecture (), differing only by capacity and quantity. There are
-different external network interfaces depending on the site.
+architecture (:numref:`fig-base-infrastructure`), differing
+only by capacity and quantity. There are different external network
+interfaces depending on the site.
 
 The capacities and quantities are derived from the scientific, system,
 and operational requirements via a detailed sizing model. The complete
 sizing model and the process used to arrive at the infrastructure is
-available in the LSST Project Archive. A summary is provided in and .
+available in the LSST Project Archive. A summary is provided in
+:numref:`tab-compute-summary` and :numref:`tab-storage-summary`.
 
-|image4|
+.. _tab-compute-summary:
 
-Table 1: Compute and Facilities Summary.
+.. table:: Compute and Facilities Summary.
 
-|image5|
+   +------------------------------------+---------------------------+---------------------------+
+   | Category                           | Archive Site              | Base Site                 |
+   +============+=======================+===========================+===========================+
+   | Compute    | Teraflops (sustained) | 200 → 1100                | 30 → 55                   |
+   |            +-----------------------+---------------------------+---------------------------+
+   |            | Notes                 | 800 → 800 (1200 hwm)      | 100 → 50 (115 hwm)        |
+   |            +-----------------------+---------------------------+---------------------------+
+   |            | Cores                 | 45K → 180K                | 7K → 10K                  |
+   |            +-----------------------+---------------------------+---------------------------+
+   |            | Memory Bandwidth      | 25 → 130 TB/s             | 3 → 6 TB/s                |
+   +------------+-----------------------+---------------------------+---------------------------+
+   | Database   | Teraflops (sustained) | 33 → 330                  | 30 → 310                  |
+   |            +-----------------------+---------------------------+---------------------------+
+   |            | Nodes                 | 120 → 270 (360 hwm)       | 100 → 250 (340 hwm)       |
+   +------------+-----------------------+---------------------------+---------------------------+
+   | Facilities | Floorspace            | 670 → 700 sq ft (875 hwm) | 400 → 420 sq ft (500 hwm) |
+   |            +-----------------------+---------------------------+---------------------------+
+   |            | Power                 | 300 → 440 kW (610 hwm)    | 120 → 160 kW (220 hwm)    |
+   |            +-----------------------+---------------------------+---------------------------+
+   |            | Cooling               | 1.0 → 1.5 mmbtu (2.1 hwm) | 0.4 → 0.5 mmbtu (0.7 hwm) |
+   +------------+-----------------------+---------------------------+---------------------------+
 
-Table 2. Storage Summary.
+.. _tab-storage-summary:
+
+.. table:: Storage summary.
+
+   +---------------------------------------------+------------------------+------------------------+
+   | Type                                        | Archive Site           | Base Site              |
+   +========================+====================+========================+========================+
+   | Image Disk Storage     | Capacity           | 26 → 120 PB            | 12 → 29 PB             |
+   |                        +--------------------+------------------------+------------------------+
+   |                        | Drives             | 1600 → 1300 (1700 hwm) | 1140 → 310 (1140 hwm)  |
+   |                        +--------------------+------------------------+------------------------+
+   |                        | Disk Bandwidth     | 190 → 580 GB/s         | 90 → 100 GB/s          |
+   +------------------------+--------------------+------------------------+------------------------+
+   | Database Disk Storage  | Capacity           | 17 → 137 PB            | 11 → 90 PB             |
+   |                        +--------------------+------------------------+------------------------+
+   |                        | Drives             | 1700 → 2600 (3000 hwm) | 1000 → 1700 (2200 hwm) |
+   |                        +--------------------+------------------------+------------------------+
+   |                        | Disk Bandwidth     | 150 → 620 GB/s         | 100 → 310 GB/s         |
+   +------------------------+--------------------+------------------------+------------------------+
+   | Near-line Tape Storage | Capacity           | 10 → 120 PB            | 10 → 120 PB            |
+   |                        +--------------------+------------------------+------------------------+
+   |                        | Tapes              | 2000 → 8300            | 2000 → 8300            |
+   |                        +--------------------+------------------------+------------------------+
+   |                        | Tape Bandwidth     | 22 → 52 GB/s           | 13 → 13 GB/s           |
+   +------------------------+--------------------+------------------------+------------------------+
+   | Offsite Tape Storage   | Capacity           | 10 → 120 PB            | N/A                    |
+   |                        +--------------------+------------------------+------------------------+
+   |                        | Tapes              | 2000 → 8300            | N/A                    |
+   |                        +--------------------+------------------------+------------------------+
+   |                        | Tape Bandwidth     | 22 → 52 GB/s           | N/A                    |
+   +------------------------+--------------------+------------------------+------------------------+
+
 
 This design assumes that the DM System will be built using commodity
 parts that are not bleeding edge, but rather have been readily available
@@ -171,14 +221,20 @@ for NCSA to load the physical storage destined for La Serena with the
 data products and transfer the data via physical media as part of the
 annual hardware acquisition cycle.
 
+.. _facilities:
+
 Facilities
 ==========
 
 This section describes the operational characteristics of the facilities
 in which the DM infrastructure resides.
 
+.. _npcf:
+
 National Petascale Computing Facility, Champaign, IL, US
 --------------------------------------------------------
+
+.. fig-storage-summary:
 
 The National Petascale Computing Facility (NPCF) is a new data center
 facility on the campus of the University of Illinois. It was built
@@ -186,7 +242,7 @@ specifically to house the Blue Waters system, but will also host the
 LSST Data Management systems. The key characteristics of the facility
 are:
 
--  |image6|\ 24MW of power (1/4 of campus electric usage)
+-  24MW of power (1/4 of campus electric usage)
 
 -  5900 tons of CHW cooling
 
@@ -227,6 +283,8 @@ The fire suppression system at the NPCF is a double action water system.
 pressurizes it in the system.  The water is not released unless the
 second trigger occurs.
 
+.. _la-serena:
+
 NOAO Facility, La Serena, Chile
 -------------------------------
 
@@ -235,33 +293,52 @@ accommodate the LSST project. Refer to the Base Site design in the
 Telescope and Site Subsystem for more detail. The DM requirements for
 the Base Facility are documented in LSE-77.
 
-|image7|
+.. _fig-la-serena-floorplan:
+
+.. figure:: _static/la_serena_floorplan.png
+   :alt: Floorplan of NOAO facility in La Serena, Chile.
+
+   Floorplan of NOAO facility in La Serena, Chile.
+
+.. _floorspace-power-cooling:
 
 Floorspace, Power, and Cooling
 ------------------------------
 
-and shows the facilities usage by the LSST Data Management System over
-the survey period. This does not include any extra space that might be
-needed during the process of transitioning replacement equipment or
-staging of Base Site equipment at the Archive Site.
+.. _tab-floorspace-power-cooling:
 
-|image8|
+.. table:: Floorspace, power, and cooling estimates for the Data Management System.
 
-|image9|
+   +------------+---------------------------+---------------------------+
+   | Facilities | Archive Site              | Base Site                 |
+   +============+===========================+===========================+
+   | Floorspace | 670 → 700 sq ft (875 hwm) | 400 → 420 sq ft (500 hwm) |
+   +------------+---------------------------+---------------------------+
+   | Power      | 300 → 440 kW (610 hwm)    | 120 → 160 kW (220 hwm)    |
+   +------------+---------------------------+---------------------------+
+   | Cooling    | 1.0 → 1.5 mmbtu (2.1 hwm) | 0.4 → 0.5 mmbtu (0.7 hwm) |
+   +------------+---------------------------+---------------------------+
 
-Table 3: Floorspace, power, and cooling estimates for the Data
-Management System. The left column is the Archive Site and the rightmost
-column is the BaseSite.
+.. _fig-power-floorspace-evolution:
 
-|image10|
+.. figure:: _static/power_floorspace_evolution.png
 
-Figure 5: Power and floorspace needed by the Data Management System over
-the survey period.
+   Power and floorspace needed by the Data Management System over
+   the survey period.
+
+:numref:`tab-floorspace-power-cooling` and
+:numref:`fig-power-floorspace-evolution` shows the facilities usage by
+the LSST Data Management System over the survey period. This does not
+include any extra space that might be needed during the process of
+transitioning replacement equipment or staging of Base Site equipment
+at the Archive Site.
 
 Note that the current baseline for power, cooling, and floor space
 assumes air-cooled equipment. If the sizing model or technology trends
 change and we find that flops-per-watt is the primary constraint in our
 system design, we will evaluate water-cooled systems.
+
+.. _computing:
 
 Computing
 =========
@@ -276,10 +353,12 @@ throughout Operations. The replacement policy eventually reduces the
 node count in 2025 and beyond via more powerful nodes (see ). show the
 corresponding purchases by year.
 
-|image11|
+.. _fig-node-count-evolution:
 
-Figure 6. The number of compute nodes on-the-floor over the survey
-period.
+.. figure:: _static/node_count_evolution.png
+   :alt: The number of compute nodes on-the-floor over the survey period.
+
+   The number of compute nodes on-the-floor over the survey period.
 
 The sizing of the cluster is based on proven, sustained application
 performance and projections for hardware performance improvements.
@@ -313,7 +392,11 @@ replacement at mid-life of the project.
 Secondary storage for the cluster will utilize the GPFS file system
 described in the next section.
 
-|image12|\ The system will be managed as a distributed memory cluster
+.. _dac-ctr-compute:
+
+.. figure:: _static/dac_ctr_compute.png
+
+The system will be managed as a distributed memory cluster
 using industry best practices in system management and security. Tools
 such as xCAT will be used to provide a highly scalable and efficient
 management interface to deploy and monitor system resources as needed.
@@ -359,17 +442,36 @@ shows the requirements on the compute infrastructure driven by the LSST
 processing. summarizes the technical infrastructure necessary to meet
 those requirements.
 
-|image13|
+.. _fig-compute-growth:
 
-Figure 7: The growth of compute requirements over the survey period.
+.. figure:: _static/compute_growth.png
+   :alt: The growth of compute requirements over the survey period.
 
-|image14|
+   The growth of compute requirements over the survey period.
 
-Table 4: Compute sizing for the Data Management System.
+.. table:: Compute sizing for the Data Management System.
 
-|image15|
+   +-----------------------+----------------------+--------------------+
+   |                       | Archive Site         | Base Site          |
+   +=======================+======================+====================+
+   | Teraflops (sustained) | 200 → 1100           | 30 → 55            |
+   +-----------------------+----------------------+--------------------+
+   | Nodes                 | 800 → 800 (1200 hwm) | 100 → 50 (115 hwm) |
+   +-----------------------+----------------------+--------------------+
+   | Cores                 | 45K → 180K           | 7K → 10K           |
+   +-----------------------+----------------------+--------------------+
+   | Memory Bandwidth      | 25 → 130 TB/s        | 3 → 6 TB/s         |
+   +-----------------------+----------------------+--------------------+
 
-Figure 8: The number of nodes purchased by year over the survey period.
+
+.. _fig-node-purchase-timeline:
+
+.. figure:: _static/node_purchase_timeline.png
+   :alt: The number of nodes purchased by year over the survey period.
+
+   The number of nodes purchased by year over the survey period.
+
+.. _storage:
 
 Storage
 =======
@@ -399,14 +501,30 @@ other low latency technology for data environments within a cluster.
 NCSA is managing two clusters with GPFS filesystems that exact way
 today.
 
-Figure 9. GPFS Storage Infrastructure.
+.. _fig-gpfs:
 
-summarizes the LSST storage infrastructure for storing and retrieving
-image and other file-based data.
+.. figure:: _static/gpfs.png
+   :alt: GPFS Storage Infrastructure.
 
-|image16|
+   GPFS Storage Infrastructure.
 
-Table 5: Image file storage sizing for the Data Management System.
+
+.. _tab-image-storage:
+
+.. table:: Image file storage sizing for the Data Management System.
+
+   +--------------------+------------------------+-----------------------+
+   |                    | Archive Site           | Base Site             |
+   +====================+========================+=======================+
+   | Capacity           | 26 → 120 PB            | 12 → 29 PB            |
+   +--------------------+------------------------+-----------------------+
+   | Drives             | 1600 → 1300 (1700 hwm) | 1140 → 310 (1140 hwm) |
+   +--------------------+------------------------+-----------------------+
+   | Disk Bandwidth     | 190 → 580 GB/s         | 90 → 100 GB/s         |
+   +--------------------+------------------------+-----------------------+
+
+:numref:`fig-gpfs` summarizes the LSST storage infrastructure for storing
+and retrieving image and other file-based data.
 
 GPFS was chosen as the baseline for the parallel filesystem
 implementation based upon the following considerations:
@@ -428,13 +546,19 @@ implementation based upon the following considerations:
 -  Choice of parallel filesystem implementation is transparent to users
    of LSST.
 
+.. _mass_storage:
+
 Mass Storage
 ============
 
 The mass storage system will be HPSS. The GPFS-HPSS Interface (GHI) is
 used to create a hierarchical storage system.
 
-|image17|\ The HPSS system is comprised of core servers and movers. The
+.. fig-ghi:
+
+.. figure:: _static/ghi.png
+
+The HPSS system is comprised of core servers and movers. The
 core servers is where the metadata and process control takes place. The
 core servers has its own HA environment and failover between the two
 servers. It has a DB2 database that contains all the data with all the
@@ -464,13 +588,30 @@ There will be a technology refresh at Year 5 of LSST Operations, when a
 new tape drive environment will be purchased to replace the existing
 library equipment, and the library system will be upgraded.
 
-captures the requirements and sizing of the mass storage system.
+:numref:`tab-tape-storage-capacity` captures the requirements and
+sizing of the mass storage system.
 
-|image18|
+.. _tab-tape-storage-capacity:
 
-|image19|
+.. table:: Capacities and sizing of the Mass Storage System.
 
-Figure 10. Capacities and sizing of the Mass Storage System.
+   +-----------------------------------------+--------------+--------------+
+   | Tape Storage                            | Archive Site | Base Site    |
+   +========================+================+==============+==============+
+   | Near-line              | Capacity       | 10 → 120 PB  | 10 → 120 PB  |
+   |                        +----------------+--------------+--------------+
+   |                        | Tapes          | 2000 → 8300  | 2000 → 8300  |
+   |                        +----------------+--------------+--------------+
+   |                        | Tape Bandwidth | 22 → 52 GB/s | 13 → 13 GB/s |
+   +------------------------+----------------+--------------+--------------+
+   | Offsite                | Capacity       | 10 → 120 PB  | N/A          |
+   |                        +----------------+--------------+--------------+
+   |                        | Tapes          | 2000 → 8300  | N/A          |
+   |                        +----------------+--------------+--------------+
+   |                        | Tape Bandwidth | 22 → 52 GB/s | N/A          |
+   +------------------------+----------------+--------------+--------------+
+
+.. _databases:
 
 Databases
 =========
@@ -491,29 +632,53 @@ There are two identical instances of the qserv database environment at
 the two DMS Data Access Centers: The U.S. Data Access Center at NCSA,
 and the Chilean Data Access Center in La Serena.
 
-|image20|
 
-Figure 11: The number of database nodes on-the-floor over the survey
-period.
+.. _fig-db-node-timeline:
 
-|image21|
+.. figure:: _static/db_node_timeline.png
+   :alt: The number of database nodes on-the-floor over the survey period.
 
-Figure 12. L2 database disk storage, single site.
+   The number of database nodes on-the-floor over the survey period.
 
-and summarize the infrastructure associated with supporting the QServ
-databases.
+.. _fig-L2-db:
 
-|image22|
+.. figure:: _static/L2_db.png
+   :alt: L2 database disk storage, single site.
 
-|image23|
+   L2 database disk storage, single site.
 
-Table 6. Database worker nodes in the Data Management System.
+:numref:`fig-db-node-timeline` and :numref:`fig-L2-db` summarize the
+infrastructure associated with supporting the QServ databases.
 
-|image24|
+.. _tab-db-worker-nodes:
 
-|image25|
+.. table:: Database worker nodes in the Data Management System.
 
-Table 7: Database sizing for the Data Management System.
+   +-----------------------+---------------------------+---------------------------+
+   | Database              | Archive Site              | Base Site                 |
+   +=======================+===========================+===========================+
+   | Teraflops (sustained) | 33 → 330                  | 30 → 310                  |
+   +-----------------------+---------------------------+---------------------------+
+   | Nodes                 | 120 → 270 (360 hwm)       | 100 → 250 (340 hwm)       |
+   +-----------------------+---------------------------+---------------------------+
+
+
+.. _tab-db-sizing:
+
+.. table::  Database sizing for the Data Management System.
+
+   +--------------------+------------------------+------------------------+
+   | Database           | Archive Site           | Base Site              |
+   +====================+========================+========================+
+   | Capacity           | 17 → 137 PB            | 11 → 90 PB             |
+   +--------------------+------------------------+------------------------+
+   | Drives             | 1700 → 2600 (3000 hwm) | 1000 → 1700 (2200 hwm) |
+   +--------------------+------------------------+------------------------+
+   | Disk Bandwidth     | 150 → 620 GB/s         | 100 → 310 GB/s         |
+   +--------------------+------------------------+------------------------+
+
+
+.. _support_servers:
 
 Additional Support Servers
 ==========================
@@ -542,6 +707,8 @@ They include:
 
 -  L3 Allocations Support
 
+.. _local-networking:
+
 Cluster Interconnect and Local Networking
 =========================================
 
@@ -564,10 +731,14 @@ at the Archive Site for Data Release Production. By using InfiniBand in
 this way, we can avoid buying, implementing, and supporting the more
 expensive Fibre Channel for the storage fabric.
 
-|image26|
+.. _fig-interconnect-trends:
 
-Figure 13: Interconnect Trends 2002-2013. Src: Scientific Computing
-World. Issue 127.
+.. figure:: _static/interconnect_trends.jpg
+   :alt: Interconnect Trends 2002-2013. Src: Scientific Computing World. Issue 127.
+
+   Interconnect Trends 2002-2013. Src: Scientific Computing World. Issue 127.
+
+.. _long-haul-network:
 
 Long Haul Network
 =================
@@ -593,24 +764,37 @@ The key features of the network plan are:
 
 -  Equipment is available today at budgeted cost
 
-|image27|
-
-Figure 14: The LSST Long Haul Network
-
 Additional information can be found in the Network Design Document,
 LSE-78.
 
-and depict the nightly and non-nightly data flows, respectively, over
+.. _fig-long-haul-network:
+
+.. figure:: _static/long_haul_network.png
+   :alt: The LSST Long Haul Network
+
+   The LSST Long Haul Network.
+
+
+.. _fig-nightly-flows:
+
+.. figure:: _static/nightly_flows.png
+   :alt: The Nightly Data Flows over the LSST International Network.
+
+   The Nightly Data Flows over the LSST International Network.
+
+.. _fig-non-nightly-flows:
+
+.. figure:: _static/non_nightly_flows.png
+   :alt: The Non-Nightly Data Flows over the LSST International Network.
+
+   The Non-Nightly Data Flows over the LSST International Network.
+
+:numref:`fig-nightly-flows` and :numref:`fig-non-nightly-flows` depict
+the nightly and non-nightly data flows, respectively, over
 the LSST international network.
 
-|image28|
 
-Figure 15: The Nightly Data Flows over the LSST International Network.
-
-|image29|
-
-Figure 16. The Non-Nightly Data Flows over the LSST International
-Network.
+.. _policies:
 
 Policies
 ========
@@ -629,41 +813,60 @@ Shown in this section are various polices that we implement for the DM
 computing infrastructure. Additional supporting discussion is contained
 within document LDM-143.
 
+.. _replacement-policy:
+
 Replacement Policy
 ------------------
 
--  Compute Nodes 5 Years
++---------------------+----------------+
+| Compute Nodes       | 5 Years        |
++---------------------+----------------+
+| Disk Drives         | 3 Years        |
++---------------------+----------------+
+| Tape Media          | 5 Years        |
++---------------------+----------------+
+| Tape Drives         | 3 Years        |
++---------------------+----------------+
+| Tape Library System | Once at Year 5 |
++---------------------+----------------+
 
--  Disk Drives 3 Years
+.. _storage-overhead-policy:
 
--  Tape Media 5 Years
+Storage Overheads
+-----------------
 
--  Tape Drives 3 Years
++------------+-----+
+| RAID       | 20% |
++------------+-----+
+| Filesystem | 10% |
++------------+-----+
 
--  Tape Library System Once at Year 5
+.. _spares_policy:
 
-   1. .. rubric:: Storage Overheads
-         :name: storage-overheads
+Spares (hardware failures)
+--------------------------
 
--  RAID 20%
++---------------+--------------+
+| Compute Nodes | 3% of nodes  |
++---------------+--------------+
+| Disk Drives   | 3% of drives |
++---------------+--------------+
+| Tape Media    | 3% of tapes  |
++---------------+--------------+
 
--  Filesystem 10%
 
-   1. .. rubric:: Spares (hardware failures)
-         :name: spares-hardware-failures
+.. _extra_capacity_policy:
 
--  Compute Nodes 3% of nodes
+Extra Capacity
+--------------
 
--  Disk Drives 3% of drives
++------+-----------+
+| Disk | 10% of TB |
++------+-----------+
+| Tape | 10% of TB |
++------+-----------+
 
--  Tape Media 3% of tapes
-
-   1. .. rubric:: Extra Capacity
-         :name: extra-capacity
-
--  Disk 10% of TB
-
--  Tape 10% of TB
+.. _disaster-recovery:
 
 Disaster Recovery
 =================
@@ -680,6 +883,8 @@ near-line in the tape library system.
 
 Either Site can be the source of data for recovery of the other Site.
 
+.. _cybersecurity:
+
 CyberSecurity
 =============
 
@@ -687,7 +892,9 @@ LSST has an open data policy. The primary data deliverables of LSST Data
 Management are made available to the authorized users without any
 proprietary period.
 
-|image30|\ As a result, the central considerations are when applying
+.. figure:: _static/security.png
+
+As a result, the central considerations are when applying
 security policies are not about the theft of L1 and L2 data. The main
 considerations are:
 
@@ -709,34 +916,21 @@ Refer to LSE-99 for additional information. This is a LSST system-wide
 document, not just DM, as cybersecurity reaches across to all of the
 LSST subsystems.
 
-.. |image0| image:: media/image3.png
-.. |image1| image:: media/image4.png
-.. |image2| image:: media/image5.png
-.. |image3| image:: media/image6.png
-.. |image4| image:: media/image7.png
-.. |image5| image:: media/image8.png
-.. |image6| image:: media/image9.png
-.. |image7| image:: media/image10.png
-.. |image8| image:: media/image11.png
-.. |image9| image:: media/image12.png
-.. |image10| image:: media/image13.png
-.. |image11| image:: media/image14.png
-.. |image12| image:: media/image15.png
-.. |image13| image:: media/image16.png
-.. |image14| image:: media/image17.png
-.. |image15| image:: media/image18.png
-.. |image16| image:: media/image19.png
-.. |image17| image:: media/image20.png
-.. |image18| image:: media/image11.png
-.. |image19| image:: media/image21.png
-.. |image20| image:: media/image22.png
-.. |image21| image:: media/image23.png
-.. |image22| image:: media/image11.png
-.. |image23| image:: media/image24.png
-.. |image24| image:: media/image11.png
-.. |image25| image:: media/image25.png
-.. |image26| image:: media/image26.jpeg
-.. |image27| image:: media/image27.png
-.. |image28| image:: media/image28.png
-.. |image29| image:: media/image29.png
-.. |image30| image:: media/image30.png
+.. _change-record:
+
+Change Record
+=============
+
++-------------+------------+---------------------------------+---------------+
+| **Version** | **Date**   | **Description**                 | **Owner**     |
++=============+============+=================================+===============+
+| 1.0         | 7/13/2011  | Initial version as an assembled | Mike Freemon, |
+|             |            | document; previous material was | Jeff Kantor   |
+|             |            | distributed.                    |               |
++-------------+------------+---------------------------------+---------------+
+| 2.0         | 10/9/2013  | Updated for Final Design Review | Mike Freemon, |
+|             |            |                                 | Jeff Kantor   |
++-------------+------------+---------------------------------+---------------+
+| 3.0         | 10/11/2013 | TCT approved                    | R Allsman     |
++-------------+------------+---------------------------------+---------------+
+
