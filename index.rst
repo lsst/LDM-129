@@ -234,7 +234,10 @@ in which the DM infrastructure resides.
 National Petascale Computing Facility, Champaign, IL, US
 --------------------------------------------------------
 
-.. fig-storage-summary:
+.. figure:: _static/npcf.png
+   :alt: National Petascale Computing Facility
+
+   National Petascale Computing Facility in Champaign, IL, US.
 
 The National Petascale Computing Facility (NPCF) is a new data center
 facility on the campus of the University of Illinois. It was built
@@ -438,9 +441,10 @@ the Commissioning phase of Construction. In 2018, we acquire and install
 the computing infrastructure needed to support Commissioning, for which
 we use the same sizing as that for the first year of Operations.
 
-shows the requirements on the compute infrastructure driven by the LSST
-processing. summarizes the technical infrastructure necessary to meet
-those requirements.
+:numref:`fig-compute-growth` shows the requirements on the compute
+infrastructure driven by the LSST processing.
+:numref:`tab-compute-sizing` summarizes the technical infrastructure
+necessary to meet those requirements.
 
 .. _fig-compute-growth:
 
@@ -448,6 +452,8 @@ those requirements.
    :alt: The growth of compute requirements over the survey period.
 
    The growth of compute requirements over the survey period.
+
+.. _tab-compute-sizing:
 
 .. table:: Compute sizing for the Data Management System.
 
@@ -489,17 +495,17 @@ SATA drives. NCSA is utilizing the fast SAS internal drives for metadata
 needs, and using GPFS metadata replication across servers for data
 integrity and fault tolerance. The controller and disk enclosure is in
 the first disk unit for the GPFS NSD server. The other two disk
-enclosures add additional capacity but not performance (See ). The
-servers are best deployed as “sister pairs”. They are both active NSDs,
-but have metadata mirrors between the two, thus eliminating the single
-point of failure. If one fails, there would be a slight performance
-degradation, but the data is still readily available from the secondary
-server. Currently the GPFS environment at NCSA is connected to the
-clusters over Ethernet, but in the case of the LSST it’s just as easy to
-integrate the GPFS into the compute cluster and use Infiniband or some
-other low latency technology for data environments within a cluster.
-NCSA is managing two clusters with GPFS filesystems that exact way
-today.
+enclosures add additional capacity but not performance (See
+:numref:`fig-gpfs`). The servers are best deployed as “sister pairs”.
+They are both active NSDs, but have metadata mirrors between the two,
+thus eliminating the single point of failure. If one fails, there would
+be a slight performance degradation, but the data is still readily
+available from the secondary server. Currently the GPFS environment at
+NCSA is connected to the clusters over Ethernet, but in the case of the
+LSST it’s just as easy to integrate the GPFS into the compute cluster
+and use Infiniband or some other low latency technology for data
+environments within a cluster.  NCSA is managing two clusters with GPFS
+filesystems that exact way today.
 
 .. _fig-gpfs:
 
@@ -523,8 +529,8 @@ today.
    | Disk Bandwidth     | 190 → 580 GB/s         | 90 → 100 GB/s         |
    +--------------------+------------------------+-----------------------+
 
-:numref:`fig-gpfs` summarizes the LSST storage infrastructure for storing
-and retrieving image and other file-based data.
+:numref:`tab-image-storage` summarizes the LSST storage infrastructure
+for storing and retrieving image and other file-based data.
 
 GPFS was chosen as the baseline for the parallel filesystem
 implementation based upon the following considerations:
@@ -623,10 +629,11 @@ drives within the database servers themselves. See Document-11625 for
 additional information regarding the database architecture.
 
 There will be a large number of database worker nodes, each with its own
-local storage. shows the number of worker nodes by year, as well as the
-number of drives per node, the amount of storage per node, and the total
-number of disk drives in the system. A breakdown of how that storage is
-used is provided in .
+local storage. :numref:`fig-db-node-timeline` shows the number of worker
+nodes by year, as well as the number of drives per node, the amount of
+storage per node, and the total number of disk drives in the system. A
+breakdown of how that storage is used is provided in
+:numref:`fig-L2-db`.
 
 There are two identical instances of the qserv database environment at
 the two DMS Data Access Centers: The U.S. Data Access Center at NCSA,
@@ -647,7 +654,7 @@ and the Chilean Data Access Center in La Serena.
 
    L2 database disk storage, single site.
 
-:numref:`fig-db-node-timeline` and :numref:`fig-L2-db` summarize the
+:numref:`tab-db-worker-nodes` and :numref:`tab-db-sizing` summarize the
 infrastructure associated with supporting the QServ databases.
 
 .. _tab-db-worker-nodes:
