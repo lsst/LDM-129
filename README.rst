@@ -11,7 +11,7 @@ Infrastructure Design*.
 
 * Read the living document on the web: http://ldm-129.readthedocs.org 
 * Read the officially-approved document:
-  https://docushare.lsstcorp.org/docushare/dsweb/ServicesLib/LDM-152/History
+  https://docushare.lsstcorp.org/docushare/dsweb/ServicesLib/LDM-129/History
 
 Working with this document
 --------------------------
