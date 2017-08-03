@@ -9,9 +9,8 @@ Data Management Infrastructure Design
 This is a working repository for *LDM-129: Data Management
 Infrastructure Design*.
 
-* Read the living document on the web: http://ldm-129.readthedocs.org 
-* Read the officially-approved document:
-  https://docushare.lsstcorp.org/docushare/dsweb/ServicesLib/LDM-129/History
+* Read the living document on the web: https://ldm-129.lsst.io 
+* Read the officially-approved document: https://ls.st/ldm-129
 
 Working with this document
 --------------------------
@@ -26,8 +25,8 @@ Working with this document
 The built site can be viewed by opening ``_build/html/index.html`` in
 your web browser.
 
-Whenever you push to ``master``, readthedocs.org will build and host the
-document at http://ldm-129.readthedocs.org
+Whenever you push to ``master``, LSST the docs will build and host the
+document at https://ldm-129.lsst.io
 
 Editing metadata
 ----------------
